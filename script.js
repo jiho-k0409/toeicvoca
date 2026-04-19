@@ -1,8 +1,8 @@
 /**
  * [설정] 구글 배포 후 받은 URL과 시트 주소를 입력하세요.
  */
-const API_URL = "여기에_구글_배포_URL_입력"; 
-const SHEET_URL = "여기에_본인의_구글_시트_주소_입력";
+const API_URL = "https://script.google.com/macros/s/AKfycbypOEVw05FCW7l2RWP9GO__9Zqy1ScPegAXjJSFSIFuxLBwsDI1KKbOOPzsriSd1ugn/exec"; 
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/1L2G6ziJM4XaljIm4EfdvR-ZrnjR8Ap-q-17yXNxXsdU/edit?usp=sharing";
 
 let vocaData = {};        // Day별 단어 데이터
 let incorrectNotes = [];  // 오답 데이터
