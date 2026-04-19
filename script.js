@@ -60,6 +60,7 @@ function startSession(mode) {
         currentList = Object.values(vocaData).flat();
     } else if (mode === 'incorrect') {
         currentList = [...incorrectNotes];
+        showSection('main');
     }
 
     if (currentList.length === 0) return alert("문제가 없습니다.");
