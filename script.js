@@ -1,138 +1,137 @@
 /**
- * 설정 변수 (본인의 구글 정보로 수정 필수)
+ * [설정] 구글 배포 후 받은 URL과 시트 주소를 입력하세요.
  */
-const MAIN_SHEET_CSV = "https://docs.google.com/spreadsheets/d/본인_시트_ID/export?format=csv";
-const INCORRECT_SHEET_CSV = "https://docs.google.com/spreadsheets/d/본인_시트_ID/export?format=csv&gid=오답탭ID";
-const FORM_URL = "https://docs.google.com/forms/d/e/본인_폼_ID/formResponse";
-const ENTRY_WORD = "entry.123456"; // 구글 폼 단어 필드 ID
-const ENTRY_MEANING = "entry.789012"; // 구글 폼 뜻 필드 ID
+const API_URL = "여기에_구글_배포_URL_입력"; 
+const SHEET_URL = "여기에_본인의_구글_시트_주소_입력";
 
-let wordsData = {}; // Day별 단어 저장 객체
-let incorrectWords = []; // 불러온 오답 리스트
-let currentQuizList = []; // 현재 시험 중인 단어들
+let vocaData = {};        // Day별 단어 데이터
+let incorrectNotes = [];  // 오답 데이터
+let currentList = [];     // 현재 시험 리스트
 let currentIndex = 0;
-let isTestMode = false;
+let sessionMode = '';
 
-/**
- * 1. 데이터 로딩 (구글 시트에서 가져오기)
- */
-async function loadMainData() {
+// 페이지 로드 시 데이터 동기화
+window.onload = syncData;
+
+/** 1. 구글 시트와 데이터 동기화 */
+async function syncData() {
+    const btn = document.getElementById('sync-btn');
+    btn.innerText = "🔄 로딩 중...";
+    
     try {
-        const response = await fetch(MAIN_SHEET_CSV);
-        const csvText = await response.text();
-        parseMainCSV(csvText);
-        console.log("메인 데이터 로드 완료");
-    } catch (err) {
-        alert("데이터를 불러오는데 실패했습니다. URL을 확인하세요.");
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        // 데이터 구조화 (Day별로 묶기)
+        vocaData = {};
+        data.voca.forEach(row => {
+            const [day, word, meanings] = row;
+            if(!vocaData[day]) vocaData[day] = [];
+            vocaData[day].push({ 
+                word, 
+                meanings: String(meanings).split(',').map(m => m.trim()) 
+            });
+        });
+
+        incorrectNotes = data.incorrect.map(row => ({
+            word: row[0],
+            meanings: String(row[1]).split(',').map(m => m.trim())
+        }));
+
+        alert("동기화 완료!");
+        renderReviewStatus();
+    } catch (e) {
+        console.error(e);
+        alert("데이터를 불러오지 못했습니다. URL을 확인하세요.");
+    } finally {
+        btn.innerText = "🔄 데이터 동기화";
     }
 }
 
-function parseMainCSV(text) {
-    const lines = text.split('\n').slice(1); // 첫 줄(헤더) 제외
-    wordsData = {};
-    lines.forEach(line => {
-        // CSV 파싱 (쉼표 구분)
-        const [day, word, meanings] = line.split(',').map(item => item?.trim());
-        if (day && word && meanings) {
-            if (!wordsData[day]) wordsData[day] = [];
-            wordsData[day].push({ word, meanings: meanings.split('|').map(m => m.trim()) });
-        }
-    });
-}
+/** 2. 시험 시작 */
+function startSession(mode) {
+    sessionMode = mode;
+    const day = document.getElementById('target-day').value;
 
-/**
- * 2. 퀴즈 엔진 로직
- */
-function startMode(mode) {
-    const day = document.getElementById('test-day').value;
-    if (!wordsData[day]) return alert("해당 Day의 데이터가 없습니다.");
-    
-    currentQuizList = [...wordsData[day]].sort(() => Math.random() - 0.5);
-    isTestMode = (mode === 'test');
-    initQuiz();
-}
+    if (mode === 'practice' || mode === 'test') {
+        if (!vocaData[day]) return alert("해당 Day가 없습니다.");
+        currentList = [...vocaData[day]];
+    } else if (mode === 'random') {
+        currentList = Object.values(vocaData).flat();
+    } else if (mode === 'incorrect') {
+        currentList = [...incorrectNotes];
+    }
 
-function startTotalRandomTest() {
-    currentQuizList = Object.values(wordsData).flat().sort(() => Math.random() - 0.5);
-    if (currentQuizList.length === 0) return alert("데이터가 비어있습니다.");
-    isTestMode = true;
-    initQuiz();
-}
+    if (currentList.length === 0) return alert("문제가 없습니다.");
 
-function initQuiz() {
+    currentList.sort(() => Math.random() - 0.5);
     currentIndex = 0;
-    showSection('practice');
     document.getElementById('quiz-container').classList.remove('hidden');
-    showNextQuestion();
+    showQuestion();
 }
 
-function showNextQuestion() {
-    if (currentIndex >= currentQuizList.length) {
-        alert("학습이 끝났습니다!");
+/** 3. 문제 표시 */
+function showQuestion() {
+    if (currentIndex >= currentList.length) {
+        alert("세션 종료!");
         document.getElementById('quiz-container').classList.add('hidden');
         return;
     }
-    const q = currentQuizList[currentIndex];
+    const q = currentList[currentIndex];
     document.getElementById('display-word').innerText = q.word;
     document.getElementById('user-answer').value = '';
     document.getElementById('user-answer').focus();
-    document.getElementById('feedback').innerText = '';
-    document.getElementById('progress').innerText = `${currentIndex + 1} / ${currentQuizList.length}`;
+    document.getElementById('progress').innerText = `${currentIndex + 1} / ${currentList.length}`;
 }
 
-/**
- * 3. 정답 확인 및 오답 전송 (핵심 기능)
- */
-function checkAnswer() {
+/** 4. 정답 확인 및 오답 서버 전송 */
+async function checkAnswer() {
     const userAns = document.getElementById('user-answer').value.trim();
-    const currentWord = currentQuizList[currentIndex];
+    const currentWord = currentList[currentIndex];
     const isCorrect = currentWord.meanings.includes(userAns);
+    const feedbackEl = document.getElementById('feedback');
 
     if (isCorrect) {
-        document.getElementById('feedback').innerText = "✅ 정답!";
-        document.getElementById('feedback').style.color = "green";
+        feedbackEl.innerText = "✅ 정답!";
+        feedbackEl.style.color = "green";
     } else {
-        const correctStr = currentWord.meanings.join(', ');
-        document.getElementById('feedback').innerText = `❌ 틀림 (정답: ${correctStr})`;
-        document.getElementById('feedback').style.color = "red";
-        
-        // 테스트 모드일 때만 구글 폼으로 오답 전송 (클라우드 저장)
-        if (isTestMode) {
-            sendToGoogleForm(currentWord.word, correctStr);
+        feedbackEl.innerText = `❌ 오답 (정답: ${currentWord.meanings[0]})`;
+        feedbackEl.style.color = "red";
+
+        // 테스트 모드일 때만 구글 시트로 오답 전송
+        if (['test', 'random'].includes(sessionMode)) {
+            await sendToSheet(currentWord.word, currentWord.meanings.join(', '));
         }
     }
 
-    // 1.5초 후 다음 문제로
     setTimeout(() => {
         currentIndex++;
-        showNextQuestion();
-    }, 1500);
+        showQuestion();
+        feedbackEl.innerText = "";
+    }, 1200);
 }
 
-// 구글 폼으로 데이터 쏘기 (공용컴퓨터 저장 대용)
-function sendToGoogleForm(word, meaning) {
-    const formData = new FormData();
-    formData.append(ENTRY_WORD, word);
-    formData.append(ENTRY_MEANING, meaning);
-
-    fetch(FORM_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: formData
-    }).catch(e => console.error("오답 저장 실패"));
+/** 5. [핵심] 구글 시트로 데이터 쓰기 */
+async function sendToSheet(word, meaning) {
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ word, meaning })
+        });
+        console.log("오답 저장 완료");
+    } catch (e) {
+        console.error("저장 실패", e);
+    }
 }
 
-/**
- * 4. 유틸리티 함수
- */
 function showSection(id) {
     document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
     document.getElementById(`${id}-section`).classList.remove('hidden');
 }
 
-function handleKeyPress(e) {
-    if (e.key === 'Enter') checkAnswer();
+function renderReviewStatus() {
+    document.getElementById('incorrect-info').innerText = `현재 저장된 오답: ${incorrectNotes.length}개`;
+    document.getElementById('btn-retry-incorrect').disabled = incorrectNotes.length === 0;
 }
 
-// 페이지 시작 시 데이터 로드
-window.onload = loadMainData;
+function handleKeyPress(e) { if (e.key === 'Enter') checkAnswer(); }
