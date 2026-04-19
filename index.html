@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 공용컴퓨터 토익 단어장</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📑 Cloud TOEIC Voca</h1>
+        
+        <nav>
+            <button onclick="showSection('practice')">학습 및 테스트</button>
+            <button onclick="showSection('review')">오답 노트 관리</button>
+            <button onclick="window.open('본인의_구글_시트_주소')">시트 열기</button>
+        </nav>
+
+        <section id="practice-section">
+            <div class="controls">
+                <input type="number" id="test-day" placeholder="Day (숫자)">
+                <button onclick="startMode('practice')">연습하기</button>
+                <button onclick="startMode('test')">Day 테스트</button>
+                <button onclick="startTotalRandomTest()">전체 랜덤 테스트</button>
+            </div>
+            
+            <div id="quiz-container" class="hidden">
+                <div id="question-box">
+                    <p id="display-word">단어 로딩중...</p>
+                    <input type="text" id="user-answer" placeholder="뜻을 입력하고 Enter" onkeypress="handleKeyPress(event)">
+                    <button id="submit-btn">확인</button>
+                </div>
+                <p id="feedback"></p>
+                <p id="progress"></p>
+            </div>
+        </section>
+
+        <section id="review-section" class="hidden">
+            <h3>오답 저장소</h3>
+            <p>틀린 단어는 자동으로 구글 시트에 저장됩니다.</p>
+            <button onclick="loadIncorrectData()">구글에서 오답 불러오기</button>
+            <button onclick="startIncorrectTest()" id="start-incorrect-btn" disabled>오답 테스트 시작</button>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
