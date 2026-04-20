@@ -3,48 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOEIC Voca - Cloud Sync</title>
+    <title>Cloud TOEIC Master</title>
+    <!-- 고품질 웹 폰트 적용 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>📊 Cloud TOEIC Master</h1>
+        <header>
+            <h1>☁️ Cloud TOEIC Voca</h1>
+            <p class="subtitle">어디서든 동기화되는 나만의 단어장</p>
+        </header>
         
-        <nav>
-            <button onclick="showSection('main')">학습/테스트</button>
-            <button onclick="showSection('review')">오답 저장소</button>
-            <button onclick="syncData()" id="sync-btn">🔄 데이터 동기화</button>
+        <nav class="top-nav">
+            <button class="nav-btn active" onclick="showSection('main', this)">📚 학습 및 테스트</button>
+            <button class="nav-btn" onclick="showSection('review', this)">📝 오답 노트</button>
+            <button class="nav-btn sync-btn" onclick="syncData()" id="sync-btn">🔄 동기화</button>
         </nav>
 
-        <!-- 메인 학습 및 테스트 섹션 -->
-        <section id="main-section">
-            <div class="controls">
-                <input type="number" id="target-day" placeholder="Day 입력 (예: 1)">
-                <button onclick="startSession('practice')">연습하기</button>
-                <button onclick="startSession('test')">Day 테스트</button>
-                <button onclick="startSession('random')" style="background: #8e44ad;">전체 랜덤 테스트</button>
-            </div>
-            
-            <div id="quiz-container" class="hidden">
-                <div id="question-box">
-                    <p id="display-word">단어를 불러오는 중...</p>
-                    <input type="text" id="user-answer" placeholder="뜻을 입력하세요" onkeypress="handleKeyPress(event)">
-                    <button onclick="checkAnswer()">확인</button>
+        <main>
+            <!-- 메인 학습 및 테스트 섹션 -->
+            <section id="main-section" class="fade-in">
+                <div class="card controls">
+                    <div class="input-group">
+                        <label for="target-day">Day 선택</label>
+                        <input type="number" id="target-day" placeholder="숫자만 입력 (예: 1)">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="startSession('practice')">연습 모드</button>
+                        <button class="btn-danger" onclick="startSession('test')">실전 테스트</button>
+                    </div>
+                    <hr class="divider">
+                    <button class="btn-purple full-width" onclick="startSession('random')">전체 랜덤 테스트 (30제)</button>
                 </div>
-                <p id="feedback"></p>
-                <p id="progress"></p>
-            </div>
-        </section>
+                
+                <div id="quiz-container" class="card quiz-card hidden fade-in">
+                    <div class="progress-bar-bg">
+                        <div id="progress-bar" class="progress-bar-fill"></div>
+                    </div>
+                    <p id="progress-text">0 / 0</p>
+                    
+                    <div id="question-box">
+                        <h2 id="display-word">단어 로딩중...</h2>
+                        <input type="text" id="user-answer" placeholder="뜻을 입력하고 Enter를 누르세요" onkeypress="handleKeyPress(event)">
+                        <button id="submit-btn" class="btn-submit" onclick="checkAnswer()">정답 확인</button>
+                    </div>
+                    <div id="feedback-container">
+                        <p id="feedback"></p>
+                    </div>
+                </div>
+            </section>
 
-        <!-- 오답 관리 섹션 -->
-        <section id="review-section" class="hidden">
-            <h3>오답 노트</h3>
-            <p>테스트 중 틀린 단어는 구글 시트에 실시간 저장됩니다.</p>
-            <div id="incorrect-info">데이터 로딩 중...</div>
-            <button onclick="startSession('incorrect')" id="btn-retry-incorrect" disabled>오답 시험 보기</button>
-            <button onclick="window.open(SHEET_URL)" class="btn-sheet">구글 시트 열기</button>
-        </section>
+            <!-- 오답 관리 섹션 -->
+            <section id="review-section" class="hidden fade-in">
+                <div class="card">
+                    <h3>내 오답 저장소</h3>
+                    <p class="desc">테스트 중 틀린 단어는 구글 시트에 자동으로 쌓입니다.</p>
+                    <div id="incorrect-info" class="stats-box">데이터 로딩 중...</div>
+                    <button onclick="startSession('incorrect')" id="btn-retry-incorrect" class="btn-danger full-width" disabled>틀린 단어 다시 풀기</button>
+                    <button onclick="window.open(SHEET_URL)" class="btn-secondary full-width mt-10">구글 시트에서 관리하기</button>
+                </div>
+            </section>
+        </main>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
