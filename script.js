@@ -1,5 +1,4 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbypOEVw05FCW7l2RWP9GO__9Zqy1ScPegAXjJSFSIFuxLBwsDI1KKbOOPzsriSd1ugn/exec"; 
-
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/1L2G6ziJM4XaljIm4EfdvR-ZrnjR8Ap-q-17yXNxXsdU/edit?usp=sharing";
 
 let vocaData = {};        
@@ -10,6 +9,7 @@ let sessionMode = ''; // 'practice_flashcard', 'practice_mcq', 'test', 'random',
 
 window.onload = syncData;
 
+/** 1. 구글 시트 데이터 동기화 */
 async function syncData() {
     const btn = document.getElementById('sync-btn');
     btn.innerText = "🔄 동기화 중...";
@@ -27,14 +27,17 @@ async function syncData() {
                 vocaData[day].push({ word, meanings: String(meanings).split(',').map(m => m.trim()) });
             });
         }
+
         if(data.incorrect && data.incorrect.length > 0) {
             incorrectNotes = data.incorrect.map(row => ({ word: row[0], meanings: String(row[1]).split(',').map(m => m.trim()) }));
         } else {
             incorrectNotes = [];
         }
+
         renderReviewStatus();
         alert("데이터 동기화 완료!");
     } catch (e) {
+        console.error("동기화 에러:", e);
         alert("데이터 동기화 실패. URL을 확인하세요.");
     } finally {
         btn.innerText = "🔄 동기화";
@@ -42,13 +45,14 @@ async function syncData() {
     }
 }
 
+/** 2. 학습 모드 시작 */
 function startSession(mode) {
     const day = document.getElementById('target-day').value;
 
     if (mode === 'practice') {
         if (!vocaData[day] || vocaData[day].length === 0) return alert("해당 Day의 단어가 없습니다.");
         currentList = [...vocaData[day]];
-        sessionMode = 'practice_flashcard'; // 연습 1단계 시작
+        sessionMode = 'practice_flashcard';
     } 
     else if (mode === 'test') {
         if (!vocaData[day] || vocaData[day].length === 0) return alert("해당 Day의 단어가 없습니다.");
@@ -59,12 +63,12 @@ function startSession(mode) {
         const allWords = Object.values(vocaData).flat();
         if (allWords.length === 0) return alert("저장된 단어가 없습니다.");
         currentList = allWords.sort(() => Math.random() - 0.5).slice(0, 30);
-        sessionMode = 'test'; // 랜덤은 주관식 테스트
+        sessionMode = 'test'; 
     } 
     else if (mode === 'incorrect') {
         if (incorrectNotes.length === 0) return alert("저장된 오답이 없습니다.");
         currentList = [...incorrectNotes];
-        sessionMode = 'test'; // 오답도 주관식 테스트
+        sessionMode = 'test'; 
     }
 
     if (sessionMode !== 'test' && mode !== 'random') currentList.sort(() => Math.random() - 0.5);
@@ -72,6 +76,7 @@ function startSession(mode) {
     currentIndex = 0;
     showSection('main', document.querySelector('.nav-btn'));
     
+    // 퀴즈 렌더링 강제 업데이트(애니메이션 용)
     const quizContainer = document.getElementById('quiz-container');
     quizContainer.classList.remove('hidden', 'fade-in');
     void quizContainer.offsetWidth; 
@@ -80,20 +85,18 @@ function startSession(mode) {
     showQuestion();
 }
 
-/** 문제 화면 그리기 (모드에 따라 UI 분기) */
+/** 3. 화면 UI 렌더링 분기 */
 function showQuestion() {
-    // 현재 페이즈가 끝났을 때
     if (currentIndex >= currentList.length) {
-        // 플래시카드가 끝나면 객관식으로 자동 전환
         if (sessionMode === 'practice_flashcard') {
-            alert("플래시카드 학습 완료! 이어서 4지 선다 객관식 연습을 시작합니다.");
+            alert("1단계 학습 완료! 이어서 객관식 연습을 시작합니다.");
             sessionMode = 'practice_mcq';
             currentIndex = 0;
-            currentList.sort(() => Math.random() - 0.5); // 리스트 다시 섞기
+            currentList.sort(() => Math.random() - 0.5);
             showQuestion();
             return;
         } else {
-            alert("🎉 모든 학습/테스트가 끝났습니다! 수고하셨습니다.");
+            alert("🎉 모든 테스트가 끝났습니다! 수고하셨습니다.");
             document.getElementById('quiz-container').classList.add('hidden');
             return;
         }
@@ -102,16 +105,15 @@ function showQuestion() {
     const q = currentList[currentIndex];
     clearFeedback();
 
-    // 프로그레스 바 업데이트
+    // 프로그레스 바 작동 로직
     const progressPercent = ((currentIndex + 1) / currentList.length) * 100;
     document.getElementById('progress-bar').style.width = `${progressPercent}%`;
     document.getElementById('progress-text').innerText = `${currentIndex + 1} / ${currentList.length}`;
 
-    // UI 컨트롤
+    // UI 컨테이너 제어
     document.getElementById('flashcard-ui').classList.add('hidden');
     document.getElementById('mcq-ui').classList.add('hidden');
     document.getElementById('subjective-ui').classList.add('hidden');
-
     const badge = document.getElementById('mode-badge');
 
     if (sessionMode === 'practice_flashcard') {
@@ -131,6 +133,7 @@ function showQuestion() {
         badge.innerText = "실전 테스트 (주관식)";
         document.getElementById('subjective-ui').classList.remove('hidden');
         document.getElementById('display-word').innerText = q.word;
+        
         const inputEl = document.getElementById('user-answer');
         inputEl.value = '';
         inputEl.disabled = false;
@@ -139,16 +142,28 @@ function showQuestion() {
     }
 }
 
-/** 플래시카드 뒤집기 및 다음 */
+/** 4-1. 플래시카드 뒤집기 및 스포일러 방지 기능 */
 function flipCard() {
     document.querySelector('.flashcard').classList.toggle('flipped');
 }
+
 function nextFlashcard() {
+    const card = document.querySelector('.flashcard');
+    const inner = document.querySelector('.flashcard-inner');
+    
+    // 카드가 뒤집혀있다면 애니메이션 없이 즉시 원복
+    if (card.classList.contains('flipped')) {
+        inner.style.transition = 'none';
+        card.classList.remove('flipped');
+        void inner.offsetWidth; 
+        inner.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    }
+    
     currentIndex++;
     showQuestion();
 }
 
-/** 객관식 보기 생성기 */
+/** 4-2. 객관식 오답 생성 및 정답 체크 */
 function generateMCQOptions(correctWordObj) {
     const optionsContainer = document.getElementById('mcq-options');
     optionsContainer.innerHTML = '';
@@ -159,16 +174,13 @@ function generateMCQOptions(correctWordObj) {
     let options = [correctMeaning];
     let attempts = 0;
 
-    // 랜덤 오답 3개 뽑기
     while (options.length < 4 && attempts < 100) {
         let randomMeaning = allMeaningsList[Math.floor(Math.random() * allMeaningsList.length)];
         if (!options.includes(randomMeaning)) options.push(randomMeaning);
         attempts++;
     }
-    // 데이터가 부족할 경우 예외 처리
     while (options.length < 4) options.push("오답 " + options.length);
 
-    // 섞어서 버튼 렌더링
     options.sort(() => Math.random() - 0.5).forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'mcq-btn';
@@ -178,9 +190,7 @@ function generateMCQOptions(correctWordObj) {
     });
 }
 
-/** 객관식 정답 체크 */
 function checkMCQ(btn, isCorrect, correctMeaning) {
-    // 모든 버튼 비활성화
     document.querySelectorAll('.mcq-btn').forEach(b => b.disabled = true);
     
     if (isCorrect) {
@@ -188,7 +198,6 @@ function checkMCQ(btn, isCorrect, correctMeaning) {
         showFeedback(true, correctMeaning);
     } else {
         btn.classList.add('incorrect');
-        // 정답 버튼도 찾아서 초록색으로 칠해줌
         document.querySelectorAll('.mcq-btn').forEach(b => {
             if (b.innerText === correctMeaning) b.classList.add('correct');
         });
@@ -197,7 +206,7 @@ function checkMCQ(btn, isCorrect, correctMeaning) {
     setTimeout(() => { currentIndex++; showQuestion(); }, 1800);
 }
 
-/** 주관식 정답 체크 */
+/** 4-3. 주관식 정답 체크 */
 async function checkSubjective() {
     const inputEl = document.getElementById('user-answer');
     const userAns = inputEl.value.trim();
@@ -220,10 +229,27 @@ async function checkSubjective() {
             renderReviewStatus(); 
         }
     }
-    setTimeout(() => { currentIndex++; showQuestion(); }, 1800);
+    setTimeout(() => { currentIndex++; showQuestion(); }, 2000);
 }
 
-/** 피드백 공통 함수 */
+/** 5. 구글 시트로 데이터 쓰기 (no-cors 적용) */
+async function sendToSheet(word, meaning) {
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', 
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8",
+            },
+            body: JSON.stringify({ word, meaning })
+        });
+        console.log("오답 전송 완료 (no-cors)");
+    } catch (e) {
+        console.error("오답 저장 실패", e);
+    }
+}
+
+/** 6. 기타 유틸리티 */
 function showFeedback(isCorrect, meaningStr) {
     const feedbackEl = document.getElementById('feedback');
     if (isCorrect) {
@@ -234,32 +260,18 @@ function showFeedback(isCorrect, meaningStr) {
         feedbackEl.className = 'feedback-incorrect';
     }
 }
+
 function clearFeedback() {
     document.getElementById('feedback').className = ''; 
     document.getElementById('feedback').innerText = '';
 }
 
-/** 5. 구글 시트로 데이터 쓰기 (CORS 우회 적용) */
-async function sendToSheet(word, meaning) {
-    try {
-        await fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors', // 브라우저의 보안 차단을 강제로 무시하고 데이터 전송
-            headers: {
-                "Content-Type": "text/plain;charset=utf-8",
-            },
-            body: JSON.stringify({ word, meaning })
-        });
-        console.log("오답 전송 완료 (no-cors 우회)");
-    } catch (e) {
-        console.error("오답 저장 실패", e);
-    }
-}
-
-
-/** 유틸리티 */
 function showSection(id, btnElement) {
-    document.querySelectorAll('main > section').forEach(s => { s.classList.add('hidden'); s.classList.remove('fade-in'); });
+    document.querySelectorAll('main > section').forEach(s => { 
+        s.classList.add('hidden'); 
+        s.classList.remove('fade-in'); 
+    });
+    
     const targetSection = document.getElementById(`${id}-section`);
     targetSection.classList.remove('hidden');
     void targetSection.offsetWidth; 
