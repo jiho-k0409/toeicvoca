@@ -53,7 +53,18 @@ button:active { transform: scale(0.98); }
 .progress-bar-bg { width: 100%; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
 .progress-bar-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 #progress-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-align: right; margin-bottom: 15px; }
-.mode-badge { position: absolute; top: 15px; left: 20px; background: var(--purple); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+/* 기존에 있던 position: absolute; 와 top, left 속성을 제거하고 여백(margin)을 추가합니다. */
+.mode-badge { 
+    display: inline-block; 
+    background: var(--purple); 
+    color: white; 
+    padding: 6px 16px; 
+    border-radius: 20px; 
+    font-size: 0.85rem; 
+    font-weight: bold; 
+    margin-bottom: 25px; /* 💡 여기가 프로그레스 바와 띄우는 간격입니다. (원하는 만큼 조절 가능) */
+    box-shadow: 0 4px 6px rgba(139, 92, 246, 0.2); /* 살짝 고급스러운 그림자 추가 */
+}
 .display-word { font-size: 2.8rem; font-weight: 800; color: var(--text-main); margin: 15px 0 25px; letter-spacing: -0.05em; }
 
 /* 1. 플래시카드 UI */
