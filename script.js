@@ -142,34 +142,33 @@ function showQuestion() {
     }
 }
 
-/** 4-1. 플래시카드 뒤집기 및 스포일러 완벽 방지 */
+/** 4-1. 플래시카드 뒤집기 및 방향키 연동 완벽 제어 */
 function flipCard() {
     document.querySelector('.flashcard').classList.toggle('flipped');
 }
 
 function nextFlashcard() {
     const card = document.querySelector('.flashcard');
-    const nextBtn = document.querySelector('#flashcard-ui button'); // 다음 단어 버튼
+    const nextBtn = document.querySelector('#flashcard-ui button');
     
-    // 카드가 뒤집혀(뜻이 보이는) 상태라면?
-    if (card.classList.contains('flipped')) {
-        // 1. 카드가 돌아가는 동안 '다음' 버튼을 또 누르지 못하게 잠금
+    // 상태 1: 카드가 앞면(영단어)일 때 버튼을 누르면 -> 뜻을 보여줌 (뒤집기)
+    if (!card.classList.contains('flipped')) {
+        card.classList.add('flipped');
+    } 
+    // 상태 2: 카드가 뒷면(뜻)일 때 버튼을 누르면 -> 다음 단어로 넘어감
+    else {
+        // 애니메이션 도중 중복 입력 방지
         nextBtn.disabled = true;
         
-        // 2. 카드를 앞면(영단어)으로 부드럽게 다시 뒤집기 시작
+        // 카드를 앞면으로 샥 돌려놓기
         card.classList.remove('flipped');
         
-        // 3. 카드가 완전히 앞면으로 돌아온 후(0.5초 뒤)에 단어 교체
+        // 카드가 다 돌아간 후(0.5초 뒤) 단어 교체
         setTimeout(() => {
             currentIndex++;
             showQuestion();
-            nextBtn.disabled = false; // 버튼 잠금 해제
+            nextBtn.disabled = false;
         }, 500); 
-        
-    } else {
-        // 카드가 이미 앞면(영단어)이라면 대기할 필요 없이 즉시 넘김
-        currentIndex++;
-        showQuestion();
     }
 }
 
@@ -301,3 +300,15 @@ function renderReviewStatus() {
 }
 
 function handleKeyPress(e) { if (e.key === 'Enter') checkSubjective(); }
+/** 7. 키보드 오른쪽 방향키(→) 연동 */
+document.addEventListener('keydown', function(e) {
+    // 현재 연습 1단계(플래시카드) 모드이고, 누른 키가 오른쪽 방향키(ArrowRight)일 때만 작동
+    if (sessionMode === 'practice_flashcard' && e.key === 'ArrowRight') {
+        const nextBtn = document.querySelector('#flashcard-ui button');
+        
+        // 카드가 넘어가고 있는(버튼이 잠긴) 상태가 아닐 때만 실행
+        if (!nextBtn.disabled) {
+            nextFlashcard();
+        }
+    }
+});
