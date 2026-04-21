@@ -46,6 +46,7 @@ async function syncData() {
 }
 
 /** 2. 학습 모드 시작 */
+/** 2. 학습 모드 시작 */
 function startSession(mode) {
     const day = document.getElementById('target-day').value;
 
@@ -65,18 +66,25 @@ function startSession(mode) {
         currentList = allWords.sort(() => Math.random() - 0.5).slice(0, 30);
         sessionMode = 'test'; 
     } 
-    else if (mode === 'incorrect') {
+    // [추가됨] 오답 연습 모드
+    else if (mode === 'incorrect_practice') {
         if (incorrectNotes.length === 0) return alert("저장된 오답이 없습니다.");
         currentList = [...incorrectNotes];
-        sessionMode = 'test'; 
+        sessionMode = 'practice_flashcard'; // 연습 1단계부터 시작
+    }
+    // [추가됨] 오답 실전 테스트 모드
+    else if (mode === 'incorrect_test') {
+        if (incorrectNotes.length === 0) return alert("저장된 오답이 없습니다.");
+        currentList = [...incorrectNotes];
+        sessionMode = 'test'; // 바로 주관식 테스트
     }
 
     if (sessionMode !== 'test' && mode !== 'random') currentList.sort(() => Math.random() - 0.5);
     
+    // ... (이하 기존 startSession 로직과 동일)
     currentIndex = 0;
     showSection('main', document.querySelector('.nav-btn'));
     
-    // 퀴즈 렌더링 강제 업데이트(애니메이션 용)
     const quizContainer = document.getElementById('quiz-container');
     quizContainer.classList.remove('hidden', 'fade-in');
     void quizContainer.offsetWidth; 
@@ -294,9 +302,15 @@ function showSection(id, btnElement) {
 
 function renderReviewStatus() {
     const infoEl = document.getElementById('incorrect-info');
-    const retryBtn = document.getElementById('btn-retry-incorrect');
+    // 새로 만든 두 개의 버튼 ID 가져오기
+    const practiceBtn = document.getElementById('btn-practice-incorrect');
+    const testBtn = document.getElementById('btn-test-incorrect');
+    
     if (infoEl) infoEl.innerText = `현재 쌓인 오답: ${incorrectNotes.length}개`;
-    if (retryBtn) retryBtn.disabled = incorrectNotes.length === 0;
+    
+    // 오답이 없으면 두 버튼 모두 클릭 불가 처리
+    if (practiceBtn) practiceBtn.disabled = incorrectNotes.length === 0;
+    if (testBtn) testBtn.disabled = incorrectNotes.length === 0;
 }
 
 function handleKeyPress(e) { if (e.key === 'Enter') checkSubjective(); }
