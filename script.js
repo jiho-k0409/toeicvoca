@@ -1,5 +1,5 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbypOEVw05FCW712RWP9GO__9Zqy1ScPegAXjJSFSIFuxLBwsDI1KKb0OPzsriSd1ugn/exec"
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/1L2G6ziJM4XaljIm4EfdvR-ZnjR8Ap-q-17yXNXxSdU/edit?usp=sharing";
+const API_URL = "https://docs.google.com/spreadsheets/d/1L2G6ziJM4XaljIm4EfdvR-ZrnjR8Ap-q-17yXNxXsdU/"
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbypOEVw05FCW7l2RWP9GO__9Zqy1ScPegAXjJSFSIFuxLBwsDI1KKbOOPzsriSd1ugn/exec";
 
 let vocaData = {};        
 let incorrectNotes = [];  
