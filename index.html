@@ -85,7 +85,13 @@
                     <h3>내 오답 저장소</h3>
                     <p class="desc">테스트 중 틀린 단어는 구글 시트에 자동으로 쌓입니다.</p>
                     <div id="incorrect-info" class="stats-box">데이터 로딩 중...</div>
-                    <button onclick="startSession('incorrect')" id="btn-retry-incorrect" class="btn-danger full-width" disabled>틀린 단어 다시 풀기</button>
+                    
+                    <!-- 이 부분을 2개의 버튼으로 변경 -->
+                    <div class="button-group mt-10">
+                        <button onclick="startSession('incorrect_practice')" id="btn-practice-incorrect" class="btn-primary" disabled>오답 연습 (카드+객관식)</button>
+                        <button onclick="startSession('incorrect_test')" id="btn-test-incorrect" class="btn-danger" disabled>오답 실전 테스트</button>
+                    </div>
+                    
                     <button onclick="window.open(SHEET_URL)" class="btn-secondary full-width mt-10">구글 시트에서 관리하기</button>
                 </div>
             </section>
