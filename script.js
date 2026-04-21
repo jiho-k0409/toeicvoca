@@ -142,25 +142,35 @@ function showQuestion() {
     }
 }
 
-/** 4-1. 플래시카드 뒤집기 및 스포일러 방지 기능 */
+/** 4-1. 플래시카드 뒤집기 및 스포일러 완벽 방지 */
 function flipCard() {
     document.querySelector('.flashcard').classList.toggle('flipped');
 }
 
 function nextFlashcard() {
     const card = document.querySelector('.flashcard');
-    const inner = document.querySelector('.flashcard-inner');
+    const nextBtn = document.querySelector('#flashcard-ui button'); // 다음 단어 버튼
     
-    // 카드가 뒤집혀있다면 애니메이션 없이 즉시 원복
+    // 카드가 뒤집혀(뜻이 보이는) 상태라면?
     if (card.classList.contains('flipped')) {
-        inner.style.transition = 'none';
+        // 1. 카드가 돌아가는 동안 '다음' 버튼을 또 누르지 못하게 잠금
+        nextBtn.disabled = true;
+        
+        // 2. 카드를 앞면(영단어)으로 부드럽게 다시 뒤집기 시작
         card.classList.remove('flipped');
-        void inner.offsetWidth; 
-        inner.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        // 3. 카드가 완전히 앞면으로 돌아온 후(0.5초 뒤)에 단어 교체
+        setTimeout(() => {
+            currentIndex++;
+            showQuestion();
+            nextBtn.disabled = false; // 버튼 잠금 해제
+        }, 500); 
+        
+    } else {
+        // 카드가 이미 앞면(영단어)이라면 대기할 필요 없이 즉시 넘김
+        currentIndex++;
+        showQuestion();
     }
-    
-    currentIndex++;
-    showQuestion();
 }
 
 /** 4-2. 객관식 오답 생성 및 정답 체크 */
