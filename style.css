@@ -44,6 +44,7 @@ button:active { transform: scale(0.98); }
 .btn-purple { background: var(--purple); }
 .btn-purple:hover:not(:disabled) { background: var(--purple-hover); }
 .btn-secondary { background: var(--secondary); }
+.btn-secondary:hover:not(:disabled) { background: var(--secondary-hover); }
 .btn-submit { background: var(--text-main); width: 100%; margin-top: 10px; }
 .divider { border: 0; height: 1px; background: var(--border); margin: 20px 0; }
 
@@ -62,8 +63,18 @@ button:active { transform: scale(0.98); }
 .flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 .flashcard-front { background: white; border: 3px solid var(--primary); }
 .flashcard-back { background: var(--primary); color: white; transform: rotateY(180deg); border: 3px solid var(--primary); }
-.flashcard-front h2 { font-size: 2.5rem; color: var(--text-main); }
-.flashcard-back h2 { font-size: 2rem; color: white; padding: 0 15px; word-break: keep-all; }
+
+/* 글자 잘림 방지 스타일 */
+.flashcard-front h2 { font-size: 2rem; color: var(--text-main); padding: 0 15px; word-break: break-word; }
+.flashcard-back h2 { 
+    font-size: 1.5rem; color: white; padding: 0 20px; 
+    word-break: keep-all; overflow-wrap: break-word; 
+    line-height: 1.4; max-height: 160px; overflow-y: auto; 
+}
+.flashcard-back h2::-webkit-scrollbar { width: 6px; }
+.flashcard-back h2::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 4px; }
+.flashcard-back h2::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.5); border-radius: 4px; }
+
 .click-hint { font-size: 0.9rem; color: var(--primary); font-weight: bold; margin-top: 15px; opacity: 0.8; }
 
 /* 2. 객관식 UI */
@@ -73,6 +84,7 @@ button:active { transform: scale(0.98); }
 .mcq-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534 !important; }
 .mcq-btn.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
 
+/* 피드백 */
 #feedback-container { min-height: 60px; margin-top: 20px; display: flex; align-items: center; justify-content: center; }
 #feedback { font-size: 1.1rem; font-weight: 700; line-height: 1.5; padding: 10px; border-radius: 8px; width: 100%; }
 .feedback-correct { background: #dcfce7; color: #166534; }
@@ -82,6 +94,7 @@ button:active { transform: scale(0.98); }
 h3 { color: var(--text-main); font-size: 1.3rem; margin-bottom: 5px; }
 .desc { color: var(--text-muted); font-size: 0.9rem; }
 
+/* 애니메이션 관련 */
 .hidden { display: none !important; }
 .fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
