@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cloud TOEIC Master</title>
-    <!-- 고품질 웹 폰트 적용 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="style.css">
 </head>
@@ -22,7 +21,6 @@
         </nav>
 
         <main>
-            <!-- 메인 학습 및 테스트 섹션 -->
             <section id="main-section" class="fade-in">
                 <div class="card controls">
                     <div class="input-group">
@@ -30,8 +28,8 @@
                         <input type="number" id="target-day" placeholder="숫자만 입력 (예: 1)">
                     </div>
                     <div class="button-group">
-                        <button class="btn-primary" onclick="startSession('practice')">연습 모드</button>
-                        <button class="btn-danger" onclick="startSession('test')">실전 테스트</button>
+                        <button class="btn-primary" onclick="startSession('practice')">연습 모드 (카드+객관식)</button>
+                        <button class="btn-danger" onclick="startSession('test')">실전 테스트 (주관식)</button>
                     </div>
                     <hr class="divider">
                     <button class="btn-purple full-width" onclick="startSession('random')">전체 랜덤 테스트 (30제)</button>
@@ -42,19 +40,46 @@
                         <div id="progress-bar" class="progress-bar-fill"></div>
                     </div>
                     <p id="progress-text">0 / 0</p>
+                    <p id="mode-badge" class="mode-badge">모드</p>
                     
-                    <div id="question-box">
-                        <h2 id="display-word">단어 로딩중...</h2>
-                        <input type="text" id="user-answer" placeholder="뜻을 입력하고 Enter를 누르세요" onkeypress="handleKeyPress(event)">
-                        <button id="submit-btn" class="btn-submit" onclick="checkAnswer()">정답 확인</button>
+                    <!-- 1. 플래시카드 UI -->
+                    <div id="flashcard-ui" class="hidden">
+                        <div class="flashcard" onclick="flipCard()">
+                            <div class="flashcard-inner" id="flashcard-inner">
+                                <div class="flashcard-front">
+                                    <h2 id="fc-word">word</h2>
+                                    <p class="click-hint">👆 클릭해서 뜻 확인</p>
+                                </div>
+                                <div class="flashcard-back">
+                                    <h2 id="fc-meaning">meaning</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-primary full-width" onclick="nextFlashcard()">다음 단어 ➔</button>
                     </div>
+
+                    <!-- 2. 객관식 UI -->
+                    <div id="mcq-ui" class="hidden">
+                        <h2 id="mcq-word" class="display-word">word</h2>
+                        <div class="mcq-grid" id="mcq-options">
+                            <!-- 버튼이 JS로 생성됨 -->
+                        </div>
+                    </div>
+
+                    <!-- 3. 주관식 UI (기존 테스트용) -->
+                    <div id="subjective-ui" class="hidden">
+                        <h2 id="display-word" class="display-word">word</h2>
+                        <input type="text" id="user-answer" placeholder="뜻을 입력하고 Enter" onkeypress="handleKeyPress(event)">
+                        <button id="submit-btn" class="btn-submit" onclick="checkSubjective()">정답 확인</button>
+                    </div>
+
+                    <!-- 공통 피드백 -->
                     <div id="feedback-container">
                         <p id="feedback"></p>
                     </div>
                 </div>
             </section>
 
-            <!-- 오답 관리 섹션 -->
             <section id="review-section" class="hidden fade-in">
                 <div class="card">
                     <h3>내 오답 저장소</h3>
