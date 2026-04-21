@@ -1,68 +1,31 @@
 :root {
-    --primary: #4f46e5;
-    --primary-hover: #4338ca;
-    --danger: #ef4444;
-    --danger-hover: #dc2626;
-    --purple: #8b5cf6;
-    --purple-hover: #7c3aed;
-    --secondary: #10b981;
-    --secondary-hover: #059669;
-    --bg-color: #f3f4f6;
-    --card-bg: #ffffff;
-    --text-main: #1f2937;
-    --text-muted: #6b7280;
+    --primary: #4f46e5; --primary-hover: #4338ca;
+    --danger: #ef4444; --danger-hover: #dc2626;
+    --purple: #8b5cf6; --purple-hover: #7c3aed;
+    --secondary: #10b981; --secondary-hover: #059669;
+    --bg-color: #f3f4f6; --card-bg: #ffffff;
+    --text-main: #1f2937; --text-muted: #6b7280;
     --border: #e5e7eb;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-    font-family: 'Pretendard', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding: 40px 20px;
-}
-
-.container {
-    width: 100%;
-    max-width: 500px;
-}
-
+body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 40px 20px; }
+.container { width: 100%; max-width: 500px; }
 header { text-align: center; margin-bottom: 30px; }
 h1 { font-size: 2rem; color: var(--text-main); font-weight: 800; margin-bottom: 5px; }
 .subtitle { color: var(--text-muted); font-size: 0.95rem; }
 
-/* 네비게이션 */
 .top-nav { display: flex; gap: 8px; margin-bottom: 20px; }
-.nav-btn {
-    flex: 1; padding: 12px; background: transparent; border: 2px solid transparent;
-    color: var(--text-muted); font-weight: 600; border-radius: 12px; cursor: pointer; transition: 0.3s;
-}
+.nav-btn { flex: 1; padding: 12px; background: transparent; border: 2px solid transparent; color: var(--text-muted); font-weight: 600; border-radius: 12px; cursor: pointer; transition: 0.3s; }
 .nav-btn:hover { background: #e5e7eb; }
 .nav-btn.active { background: var(--card-bg); color: var(--primary); border: 2px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 .sync-btn { background: #f1f5f9; color: #475569; }
 
-/* 공통 카드 스타일 */
-.card {
-    background: var(--card-bg);
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--border);
-    margin-bottom: 20px;
-}
+.card { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); margin-bottom: 20px; }
 
-/* 입력창 및 버튼 */
 .input-group { margin-bottom: 15px; text-align: left; }
 .input-group label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
-input[type="text"], input[type="number"] {
-    width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 1rem;
-    transition: 0.3s; font-family: inherit;
-}
+input[type="text"], input[type="number"] { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 1rem; transition: 0.3s; font-family: inherit; }
 input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
 button { font-family: inherit; cursor: pointer; border: none; border-radius: 10px; padding: 14px; font-size: 1rem; font-weight: 600; transition: all 0.2s; color: white; }
@@ -81,30 +44,44 @@ button:active { transform: scale(0.98); }
 .btn-purple { background: var(--purple); }
 .btn-purple:hover:not(:disabled) { background: var(--purple-hover); }
 .btn-secondary { background: var(--secondary); }
-.btn-secondary:hover:not(:disabled) { background: var(--secondary-hover); }
 .btn-submit { background: var(--text-main); width: 100%; margin-top: 10px; }
-
 .divider { border: 0; height: 1px; background: var(--border); margin: 20px 0; }
 
-/* 퀴즈 영역 */
-.quiz-card { text-align: center; padding: 35px 25px; border-top: 5px solid var(--primary); }
-#display-word { font-size: 3rem; font-weight: 800; color: var(--text-main); margin: 15px 0 25px; letter-spacing: -0.05em; }
-
-.progress-bar-bg { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
-.progress-bar-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; }
+/* 퀴즈 공통 영역 */
+.quiz-card { text-align: center; padding: 35px 25px; border-top: 5px solid var(--primary); position: relative; }
+.progress-bar-bg { width: 100%; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+.progress-bar-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 #progress-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-align: right; margin-bottom: 15px; }
+.mode-badge { position: absolute; top: 15px; left: 20px; background: var(--purple); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+.display-word { font-size: 2.8rem; font-weight: 800; color: var(--text-main); margin: 15px 0 25px; letter-spacing: -0.05em; }
+
+/* 1. 플래시카드 UI */
+.flashcard { background-color: transparent; width: 100%; height: 220px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
+.flashcard-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.flashcard-front { background: white; border: 3px solid var(--primary); }
+.flashcard-back { background: var(--primary); color: white; transform: rotateY(180deg); border: 3px solid var(--primary); }
+.flashcard-front h2 { font-size: 2.5rem; color: var(--text-main); }
+.flashcard-back h2 { font-size: 2rem; color: white; padding: 0 15px; word-break: keep-all; }
+.click-hint { font-size: 0.9rem; color: var(--primary); font-weight: bold; margin-top: 15px; opacity: 0.8; }
+
+/* 2. 객관식 UI */
+.mcq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+.mcq-btn { background: #f8fafc; color: var(--text-main); border: 2px solid var(--border); padding: 15px 10px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; word-break: keep-all; font-size: 0.95rem; }
+.mcq-btn:hover:not(:disabled) { background: #e2e8f0; border-color: #cbd5e1; }
+.mcq-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534 !important; }
+.mcq-btn.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
 
 #feedback-container { min-height: 60px; margin-top: 20px; display: flex; align-items: center; justify-content: center; }
 #feedback { font-size: 1.1rem; font-weight: 700; line-height: 1.5; padding: 10px; border-radius: 8px; width: 100%; }
 .feedback-correct { background: #dcfce7; color: #166534; }
 .feedback-incorrect { background: #fee2e2; color: #991b1b; }
 
-/* 오답 영역 */
 .stats-box { background: #f8fafc; padding: 20px; border-radius: 12px; font-size: 1.2rem; font-weight: 700; text-align: center; margin: 15px 0 20px; color: var(--primary); border: 1px dashed #cbd5e1; }
 h3 { color: var(--text-main); font-size: 1.3rem; margin-bottom: 5px; }
 .desc { color: var(--text-muted); font-size: 0.9rem; }
 
-/* 유틸리티 */
 .hidden { display: none !important; }
-.fade-in { animation: fadeIn 0.4s ease-out forwards; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
