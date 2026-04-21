@@ -239,11 +239,23 @@ function clearFeedback() {
     document.getElementById('feedback').innerText = '';
 }
 
-/** 구글 시트 저장 통신 */
+/** 5. 구글 시트로 데이터 쓰기 (CORS 우회 적용) */
 async function sendToSheet(word, meaning) {
-    try { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ word, meaning }) }); } 
-    catch (e) { console.error("오답 저장 실패", e); }
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', // 브라우저의 보안 차단을 강제로 무시하고 데이터 전송
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8",
+            },
+            body: JSON.stringify({ word, meaning })
+        });
+        console.log("오답 전송 완료 (no-cors 우회)");
+    } catch (e) {
+        console.error("오답 저장 실패", e);
+    }
 }
+
 
 /** 유틸리티 */
 function showSection(id, btnElement) {
